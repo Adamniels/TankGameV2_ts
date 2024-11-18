@@ -1,0 +1,11 @@
+# Att göra:
+    - ändra så att alla funktioner i tank tar in WorldMap istället
+    - kolla på hur man kan testa saker som skriv ut i canvas
+    - fortsätta utöka tank (här är jag, verkligen göra klart det så långt det går)
+    - kanske borde Tank extenda en klass som heter object on map som kan vara superklass till
+      tanks, obstacle och andra saker jag vill kolla kollision för
+        - flytta lite saker från Tank till mapObjects, som tex position och width
+
+# vill göra
+    - ha en super klass för alla tanks
+    
