@@ -14,6 +14,9 @@ export class MapObjects {
     getPosition() {
         return this.position;
     }
+    setPosition(postion) {
+        this.position = postion;
+    }
     objects_intersects(other) {
         // TODO:
         return false;

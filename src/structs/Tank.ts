@@ -1,4 +1,5 @@
-import { MapObjects } from "./MapObjects.js";
+import { MapObjects, Position } from "./MapObjects.js";
+import { WorldMap } from "./WorldMap.js";
 
 
 /***
@@ -49,7 +50,6 @@ export class Tank extends MapObjects{
     constructor(id: number, pos_x: number, pos_y: number, height: number, width: number, which_keys:Array<string>){
         super(id, pos_x, pos_y, height, width);
 
-
         if(!this.valid_which_keys_arr(which_keys)){
             throw new Error("not a valid keys array")
         }else{
@@ -59,7 +59,8 @@ export class Tank extends MapObjects{
     }
     
 
-    public draw_tank(context: CanvasRenderingContext2D){
+    public draw_tank(worldMap: WorldMap){
+        const context = worldMap.getContext();
         if (context) {
             context.fillRect(this.getPosition().pos_x, this.getPosition().pos_y, this.getSize().width, this.getSize().height);
         }
@@ -68,24 +69,33 @@ export class Tank extends MapObjects{
     // TODO: måste kolla om jag intersects med någon annan så denna måste ta in worldmap och kolla med alla object om
     //       nästa position intersects
 
-    public update_tank(canvas: HTMLCanvasElement){
+    public update_tank(worldMap: WorldMap){
+
+        const canvas = worldMap.getCanvas();
+
+        // make a dummy postion depending on what key is pressed then set the new position last
+        let dummy_position: Position = this.getPosition(); 
+
         if(this.keys.up){
             if(!(this.getPosition().pos_y - this.speed < 0)){
-                this.getPosition().pos_y -= this.speed;
+                dummy_position.pos_y -= this.speed;
             }
         }else if(this.keys.down){
             if(!(this.getPosition().pos_y + this.getSize().height + this.speed > canvas.height)){
-                this.getPosition().pos_y += this.speed;
+                dummy_position.pos_y += this.speed;
             }
         }else if(this.keys.left){
             if(!(this.getPosition().pos_x - this.speed < 0)){
-                this.getPosition().pos_x -= this.speed;
+                dummy_position.pos_x -= this.speed;
             }
         }else if(this.keys.right){
             if(!(this.getPosition().pos_x + this.getSize().width + this.speed > canvas.width)){
-                this.getPosition().pos_x += this.speed;
+                dummy_position.pos_x += this.speed;
             }
         }
+
+        // check if the dummy position intersects with any other object on the map, otherwise set the new position
+        this.setPosition(dummy_position);
 
     }
 

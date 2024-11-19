@@ -1,4 +1,4 @@
-type Position = {
+export type Position = {
     pos_x: number,
     pos_y: number,
 }
@@ -31,6 +31,10 @@ export class MapObjects{
 
     public getPosition(): Position{
         return this.position;
+    }
+
+    public setPosition(postion: Position){
+        this.position = postion;
     }
 
     public objects_intersects(other: MapObjects): boolean{

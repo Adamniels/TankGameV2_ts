@@ -9,6 +9,8 @@ window.addEventListener('load', () =>{
 
     let first_tank: Tank = new Tank(1, 50, 50, 100, 50, ["w", "s", "a", "d"]);
     let second_tank: Tank = new Tank(1, 50, 50,  100, 50, ["i", "k", "j", "l"]);
+    world_map.addMapObject(first_tank);
+    world_map.addMapObject(second_tank);
 
     addEventListener("keydown", (event) => first_tank.handleKeyDown(event));
     addEventListener("keyup", (event) => first_tank.handleKeyUp(event));
@@ -19,10 +21,10 @@ window.addEventListener('load', () =>{
     function animation_loop(): void{
         requestAnimationFrame(animation_loop);
         world_map.getContext().clearRect(0, 0, 1200, 1000);
-        first_tank.update_tank(world_map.getCanvas());
-        first_tank.draw_tank(world_map.getContext());
-        second_tank.update_tank(world_map.getCanvas());
-        second_tank.draw_tank(world_map.getContext());
+        first_tank.update_tank(world_map);
+        first_tank.draw_tank(world_map);
+        second_tank.update_tank(world_map);
+        second_tank.draw_tank(world_map);
     }
     animation_loop();
 })

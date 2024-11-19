@@ -29,34 +29,40 @@ export class Tank extends MapObjects {
             this.which_keys = which_keys;
         }
     }
-    draw_tank(context) {
+    draw_tank(worldMap) {
+        const context = worldMap.getContext();
         if (context) {
             context.fillRect(this.getPosition().pos_x, this.getPosition().pos_y, this.getSize().width, this.getSize().height);
         }
     }
     // TODO: måste kolla om jag intersects med någon annan så denna måste ta in worldmap och kolla med alla object om
     //       nästa position intersects
-    update_tank(canvas) {
+    update_tank(worldMap) {
+        const canvas = worldMap.getCanvas();
+        // make a dummy postion depending on what key is pressed then set the new position last
+        let dummy_position = this.getPosition();
         if (this.keys.up) {
             if (!(this.getPosition().pos_y - this.speed < 0)) {
-                this.getPosition().pos_y -= this.speed;
+                dummy_position.pos_y -= this.speed;
             }
         }
         else if (this.keys.down) {
             if (!(this.getPosition().pos_y + this.getSize().height + this.speed > canvas.height)) {
-                this.getPosition().pos_y += this.speed;
+                dummy_position.pos_y += this.speed;
             }
         }
         else if (this.keys.left) {
             if (!(this.getPosition().pos_x - this.speed < 0)) {
-                this.getPosition().pos_x -= this.speed;
+                dummy_position.pos_x -= this.speed;
             }
         }
         else if (this.keys.right) {
             if (!(this.getPosition().pos_x + this.getSize().width + this.speed > canvas.width)) {
-                this.getPosition().pos_x += this.speed;
+                dummy_position.pos_x += this.speed;
             }
         }
+        // check if the dummy position intersects other wise set the new position
+        this.setPosition(dummy_position);
     }
     handleKeyDown(event) {
         if (this.which_keys.includes(event.key)) {
