@@ -14,11 +14,14 @@ export class MapObjects {
     getPosition() {
         return this.position;
     }
-    setPosition(postion) {
-        this.position = postion;
+    setPosition(pos_x, pos_y) {
+        this.position = { pos_x, pos_y };
     }
-    objects_intersects(other) {
-        // TODO:
-        return false;
+    objects_intersects(mapObject) {
+        const noOverlap = this.position.pos_x + this.size.width <= mapObject.position.pos_x || // rect1 till vänster om rect2
+            mapObject.position.pos_x + mapObject.size.width <= this.position.pos_x || // rect2 till vänster om rect1
+            this.position.pos_y + this.size.height <= mapObject.position.pos_y || // rect1 ovanför rect2
+            mapObject.position.pos_y + mapObject.size.height <= this.position.pos_y; // rect2 ovanför rect1
+        return !noOverlap;
     }
 }

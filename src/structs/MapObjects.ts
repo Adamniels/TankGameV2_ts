@@ -1,3 +1,5 @@
+import { WorldMap } from "./WorldMap";
+
 export type Position = {
     pos_x: number,
     pos_y: number,
@@ -33,14 +35,20 @@ export class MapObjects{
         return this.position;
     }
 
-    public setPosition(postion: Position){
-        this.position = postion;
+    public setPosition(pos_x: number, pos_y: number){
+        this.position = {pos_x, pos_y};
     }
 
-    public objects_intersects(other: MapObjects): boolean{
-        // TODO:
-        return false;
+    public objects_intersects(mapObject: MapObjects): boolean{
 
+        const noOverlap = 
+        this.position.pos_x + this.size.width <= mapObject.position.pos_x ||  // rect1 till vänster om rect2
+        mapObject.position.pos_x + mapObject.size.width <= this.position.pos_x || // rect2 till vänster om rect1
+        this.position.pos_y + this.size.height <= mapObject.position.pos_y || // rect1 ovanför rect2
+        mapObject.position.pos_y + mapObject.size.height <= this.position.pos_y;  // rect2 ovanför rect1
+    
+    return !noOverlap;
     }
+
     
 }

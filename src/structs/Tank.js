@@ -1,4 +1,4 @@
-import { MapObjects } from "./MapObjects.js";
+import { MapObjects } from "./MapObjects.js"; // behöver ta borrt .js när jag testa??
 export class Tank extends MapObjects {
     // helper function checking if which_keys is a valid array med keybindings
     valid_which_keys_arr(which_keys) {
@@ -18,10 +18,12 @@ export class Tank extends MapObjects {
         }
         return true;
     }
-    constructor(id, pos_x, pos_y, height, width, which_keys) {
+    constructor(image, id, pos_x, pos_y, height, width, which_keys) {
         super(id, pos_x, pos_y, height, width);
         this.keys = { up: false, down: false, left: false, right: false, primary: false };
         this.speed = 10;
+        this.direction = "up";
+        this.image = image;
         if (!this.valid_which_keys_arr(which_keys)) {
             throw new Error("not a valid keys array");
         }
@@ -29,10 +31,51 @@ export class Tank extends MapObjects {
             this.which_keys = which_keys;
         }
     }
+    getDirectionAngle() {
+        switch (this.direction) {
+            case "right":
+                return 0;
+            case "down":
+                return Math.PI / 2;
+            case "left":
+                return Math.PI;
+            case "up":
+                return (3 * Math.PI) / 2;
+            default:
+                throw new Error("Invalid direction");
+        }
+    }
     draw_tank(worldMap) {
         const context = worldMap.getContext();
         if (context) {
+            context.fillStyle = this.image;
             context.fillRect(this.getPosition().pos_x, this.getPosition().pos_y, this.getSize().width, this.getSize().height);
+            // Rita pilen från tankens mittpunkt
+            const arrowStartX = this.getPosition().pos_x + this.getSize().width / 2; // Startpunkt X (centrum av tanken)
+            const arrowStartY = this.getPosition().pos_y + this.getSize().height / 2; // Startpunkt Y (centrum av tanken)
+            // Pilen ska vara lite längre än tankens storlek
+            const arrowLength = Math.max(this.getSize().width, this.getSize().height) * 0.5; // Dynamisk längd baserat på tankens storlek
+            // Bestäm riktningen (vinkeln) för pilen
+            const angle = this.getDirectionAngle(); // Returnerar riktningen i radianer (0, π/2, π, 3π/2)
+            // Beräkna pilens slutpunkt baserat på riktningen
+            const arrowEndX = arrowStartX + Math.cos(angle) * arrowLength;
+            const arrowEndY = arrowStartY + Math.sin(angle) * arrowLength;
+            // Rita linjen (pilen)
+            context.beginPath();
+            context.moveTo(arrowStartX, arrowStartY); // Startpunkten
+            context.lineTo(arrowEndX, arrowEndY); // Slutpunkten
+            context.strokeStyle = "red"; // Pilens färg
+            context.lineWidth = 2; // Pilens tjocklek
+            context.stroke();
+            // Rita pilhuvudet
+            const arrowHeadLength = 10; // Längden på pilhuvudet
+            context.beginPath();
+            context.moveTo(arrowEndX, arrowEndY);
+            context.lineTo(arrowEndX - arrowHeadLength * Math.cos(angle - Math.PI / 6), arrowEndY - arrowHeadLength * Math.sin(angle - Math.PI / 6));
+            context.lineTo(arrowEndX - arrowHeadLength * Math.cos(angle + Math.PI / 6), arrowEndY - arrowHeadLength * Math.sin(angle + Math.PI / 6));
+            context.lineTo(arrowEndX, arrowEndY);
+            context.fillStyle = "red"; // Pilhuvudets färg
+            context.fill();
         }
     }
     // TODO: måste kolla om jag intersects med någon annan så denna måste ta in worldmap och kolla med alla object om
@@ -40,30 +83,45 @@ export class Tank extends MapObjects {
     update_tank(worldMap) {
         const canvas = worldMap.getCanvas();
         // make a dummy postion depending on what key is pressed then set the new position last
-        let dummy_position = this.getPosition();
+        let new_pos_x = this.getPosition().pos_x;
+        let new_pos_y = this.getPosition().pos_y;
+        let new_direction = this.direction;
         if (this.keys.up) {
             if (!(this.getPosition().pos_y - this.speed < 0)) {
-                dummy_position.pos_y -= this.speed;
+                new_pos_y -= this.speed;
+                new_direction = "up";
             }
         }
         else if (this.keys.down) {
             if (!(this.getPosition().pos_y + this.getSize().height + this.speed > canvas.height)) {
-                dummy_position.pos_y += this.speed;
+                new_pos_y += this.speed;
+                new_direction = "down";
             }
         }
         else if (this.keys.left) {
             if (!(this.getPosition().pos_x - this.speed < 0)) {
-                dummy_position.pos_x -= this.speed;
+                new_pos_x -= this.speed;
+                new_direction = "left";
             }
         }
         else if (this.keys.right) {
             if (!(this.getPosition().pos_x + this.getSize().width + this.speed > canvas.width)) {
-                dummy_position.pos_x += this.speed;
+                new_pos_x += this.speed;
+                new_direction = "right";
             }
         }
-        // check if the dummy position intersects other wise set the new position
-        this.setPosition(dummy_position);
+        // check if the dummy position intersects with any other object on the map, otherwise set the new position
+        let newPos = new MapObjects(this.getId(), new_pos_x, new_pos_y, this.getSize().height, this.getSize().width);
+        for (const mapObject of worldMap.getAllObjects()) {
+            if (this != mapObject && mapObject.objects_intersects(newPos)) {
+                // intersect with another object, do nothing
+                return;
+            }
+        }
+        this.setPosition(new_pos_x, new_pos_y);
+        this.direction = new_direction;
     }
+    //private rotateTank()
     handleKeyDown(event) {
         if (this.which_keys.includes(event.key)) {
             this.keys.up = event.key === this.which_keys[0];
@@ -93,5 +151,26 @@ export class Tank extends MapObjects {
         if (event.key === "q") {
             this.keys.primary = false;
         }
+    }
+    /////////// For testing ///////////////
+    setKeysToTrue(direction) {
+        if (direction === "up") {
+            this.keys.up = true;
+        }
+        else if (direction === "down") {
+            this.keys.down = true;
+        }
+        else if (direction === "left") {
+            this.keys.left = true;
+        }
+        else if (direction === "right") {
+            this.keys.right = true;
+        }
+    }
+    restoreKeys() {
+        this.keys.up = false;
+        this.keys.down = false;
+        this.keys.left = false;
+        this.keys.right = false;
     }
 }
