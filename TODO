@@ -1,6 +1,7 @@
 # Att göra:
     - kolla på hur jag kan rotera tanken 90 grader och sedan ha en pil på som roterar 360 grader
-      - jobba med logiken så att intersect hänger med
+      - jobba med logiken så att intersect hänger med (här kommer jag vara kvar länge eftersom jag vill att movementend ska vara perfekt)
+      - börja tänka själv
 
 # vill göra
     - ha en super klass för alla tanks, gjort så jag har en superklass för alla objects istället så länge

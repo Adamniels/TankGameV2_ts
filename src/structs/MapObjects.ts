@@ -26,6 +26,9 @@ export class MapObjects{
     public getSize(): Size{
         return this.size;
     }
+    public setSize(width: number, height: number){
+        this.size = {height, width};
+    }
 
     public getId(): number{
         return this.id;

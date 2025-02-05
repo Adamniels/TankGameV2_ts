@@ -8,6 +8,9 @@ export class MapObjects {
     getSize() {
         return this.size;
     }
+    setSize(width, height) {
+        this.size = { height, width };
+    }
     getId() {
         return this.id;
     }

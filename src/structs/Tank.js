@@ -88,37 +88,96 @@ export class Tank extends MapObjects {
         let new_direction = this.direction;
         if (this.keys.up) {
             if (!(this.getPosition().pos_y - this.speed < 0)) {
-                new_pos_y -= this.speed;
                 new_direction = "up";
             }
         }
         else if (this.keys.down) {
             if (!(this.getPosition().pos_y + this.getSize().height + this.speed > canvas.height)) {
-                new_pos_y += this.speed;
                 new_direction = "down";
             }
         }
         else if (this.keys.left) {
             if (!(this.getPosition().pos_x - this.speed < 0)) {
-                new_pos_x -= this.speed;
                 new_direction = "left";
             }
         }
         else if (this.keys.right) {
             if (!(this.getPosition().pos_x + this.getSize().width + this.speed > canvas.width)) {
-                new_pos_x += this.speed;
                 new_direction = "right";
             }
         }
+        let new_width = this.getSize().width;
+        let new_height = this.getSize().height;
+        if ((this.direction === "left" || this.direction === "right") && (new_direction === "up" || new_direction === "down")) {
+            // should go from horizontal to vertical
+            let temp = new_width;
+            new_width = new_height;
+            new_height = temp;
+            // fix so it rotatates around the middle not the top left corner
+            new_pos_x = new_pos_x - (new_width - new_height) / 2;
+            new_pos_y = new_pos_y + (new_width - new_height) / 2;
+        }
+        else if ((this.direction === "up" || this.direction === "down") && (new_direction === "left" || new_direction === "right")) {
+            // from vertical to horizontal
+            let temp = new_width;
+            new_width = new_height;
+            new_height = temp;
+            // fix so it rotatates around the middle not the top left corner
+            new_pos_x = new_pos_x - (new_width - new_height) / 2;
+            new_pos_y = new_pos_y + (new_width - new_height) / 2;
+        }
+        if (this.keys.up) {
+            if (!(new_pos_y - this.speed < 0)) {
+                new_pos_y -= this.speed;
+            }
+        }
+        else if (this.keys.down) {
+            if (!(new_pos_y + new_height + this.speed > canvas.height)) {
+                new_pos_y += this.speed;
+            }
+        }
+        else if (this.keys.left) {
+            if (!(new_pos_x - this.speed < 0)) {
+                new_pos_x -= this.speed;
+            }
+        }
+        else if (this.keys.right) {
+            if (!(new_pos_x + new_width + this.speed > canvas.width)) {
+                new_pos_x += this.speed;
+            }
+        }
+        // let new_width = this.getSize().width;
+        // let new_height = this.getSize().height;
+        // if((this.direction === "left" || this.direction === "right") && (new_direction === "up" || new_direction === "down")){
+        //     // should go from horizontal to vertical
+        //     let temp = new_width;
+        //     new_width = new_height;
+        //     new_height = temp;
+        //     // fix so it rotatates around the middle not the top left corner
+        //     new_pos_x = new_pos_x - (new_width - new_height) / 2;
+        //     new_pos_y = new_pos_y + (new_width - new_height) / 2;
+        // }else if((this.direction === "up" || this.direction === "down") && (new_direction === "left" || new_direction === "right")){
+        //     // from vertical to horizontal
+        //     let temp = new_width;
+        //     new_width = new_height;
+        //     new_height = temp;
+        //     // fix so it rotatates around the middle not the top left corner
+        //     new_pos_x = new_pos_x - (new_width - new_height) / 2;
+        //     new_pos_y = new_pos_y + (new_width - new_height) / 2;
+        // }
         // check if the dummy position intersects with any other object on the map, otherwise set the new position
-        let newPos = new MapObjects(this.getId(), new_pos_x, new_pos_y, this.getSize().height, this.getSize().width);
+        let newPos = new MapObjects(this.getId(), new_pos_x, new_pos_y, new_height, new_width);
         for (const mapObject of worldMap.getAllObjects()) {
             if (this != mapObject && mapObject.objects_intersects(newPos)) {
-                // intersect with another object, do nothing
+                // intersect with another object
+                // TODO: but how much forward can i go, i want to go as much forward as possible
+                // TODO: or how can i make the rotation possible
+                // TODO: do i need to add something to the tank, might be easier to add a mode vertical | horizontal
                 return;
             }
         }
         this.setPosition(new_pos_x, new_pos_y);
+        this.setSize(new_width, new_height);
         this.direction = new_direction;
     }
     //private rotateTank()
